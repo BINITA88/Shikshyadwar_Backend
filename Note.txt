@@ -1,0 +1,39 @@
+TO install env (enviroment variable) -> npm install dotenv
+console bhaneko yetatira terminal huncha
+to start server ->node server.js
+Everytime server start garna parcha kita refresh garna parcha testo nahos bahnera-> npm install nodemon then add   this in package.json "start": "nodemon srvr.js" aba chai start garna npm start garda server start huncha 
+for routing install npm install router
+install  npm install mongoose for framwork structure dekhauna
+ npm install morgan for kun chai route ma hit graeko dekhauna /api/ console ma dekauna
+ https://developer.mozilla.org/en-US/docs/Web/HTTP/Status read this for more information
+ test garna thunder client use garni postman 
+ to got to mongo db to see database got to https://cloud.mongodb.com/v2/66e17f71d1a96f63469b6580#/metrics/replicaSet/66e1809a0ee50703c19d25e0/explorer/ecommerce_store/categories/find
+
+ we have to import mongoose in db connection and model.
+ we have import express in server and routing.
+
+ http://localhost:8000/public/uploads/WIN_20240902_08_45_10_Pro_1726561696529.jpg to get uploaded image 
+ for validation install  npm install express-validator
+ 
+
+ https://express-validator.github.io/docs/
+
+ for encryption of password  npm install uuidv1 this import
+ https://mailtrap.io/ used for verification  YOU CAN ALSO GO HERE  https://mailtrap.io/inboxes/3146705/messages
+
+  npm install nodemailer install this for email verification and testing
+
+npm install jsonwebtoken
+ for authentication
+
+  npm install express-jwt for autorization
+
+  npm install cors
+  npm install stripe
+
+  go for strip in this link for payment => stripe.com
+  https://dashboard.stripe.com/test/dashboard
+
+
+
+  http://localhost:8000/api/register
