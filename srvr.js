@@ -4,7 +4,7 @@ const app=express()
 require('dotenv').config()
 const morgan=require('morgan')
 
-const cors=require('cors')
+
 // diff data send garna front bata back ma ors use huncha 
 require('./db/connection')
 // require is a importt
@@ -19,7 +19,7 @@ const ExamSeat =require('./rout/ExamSeatRoute')
 const scheduleRoutes = require('./rout/scheduleRoute');
 const notificationRoutes = require('./rout/noticeRoute');
 
-
+const cors=require('cors')
 // we use cors for showing it is genuine api to frontend 
 app.use(cors({
     origin:process.env.FRONT_END_URL
