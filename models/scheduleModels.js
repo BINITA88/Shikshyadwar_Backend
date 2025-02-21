@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 // sdsd
+// lets make current user 
 // Define the schedule schema
 const scheduleSchema = new mongoose.Schema({
   day: {
