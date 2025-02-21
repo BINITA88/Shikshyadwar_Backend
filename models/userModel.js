@@ -26,11 +26,12 @@ const userSchema=new mongoose.Schema({
     image:{
         type:String,
         default: null,
-
     },
+    
     contact_no:{
         type:Number,
-        required:true,
+        default: '',
+        // required:true,
     },
     Hashed_password:{
         type:String,

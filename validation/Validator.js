@@ -50,9 +50,9 @@ exports.userValidation = [
     check('email', 'email is mandatory').notEmpty()
         .isEmail().withMessage('invalid email format'),
 
-    check('contact_no', 'contact_no is mandatory').notEmpty()
-        .isNumeric().withMessage('contact_no must contain numeric values only')
-        .isLength({ min: 10 }).withMessage('contact_no must be at least 10 digits')
+    // check('contact_no', 'contact_no is mandatory').notEmpty()
+    //     .isNumeric().withMessage('contact_no must contain numeric values only')
+    //     .isLength({ min: 10 }).withMessage('contact_no must be at least 10 digits')
 ];
 
 // RESET WALA HARU GARNA PARCHA SO 

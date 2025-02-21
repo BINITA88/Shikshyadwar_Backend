@@ -9,58 +9,57 @@ const {expressjwt} =require('express-jwt')
 const OTP = require('../models/OTP')
 const otpGenerator = require('otp-generator');
 const bcrypt = require('bcryptjs');
-
-// // to register in web
-// exports.postUser=async(req,res)=>{
-//     let user= new User({
-//         name:req.body.name,
-//         email:req.body.email,
-//         password:req.body.password,
-//         contact_no:req.body.contact_no,
-//         image:req.body.image
-   
-//     })
+exports.postUser=async(req,res)=>{
+    let user= new User({
+        name:req.body.name,
+        email:req.body.email,
+        password:req.body.password
+    })
   
-//     User.findOne({ email: user.email })
-//     .then(async data => {
-//         if (data) {
-//             return res.status(400).json({ error: "Email is already registered. Please try again or try to login." });
-//         } else {
-//             user = await user.save();
-//             if (!user) {
-//                 return res.status(400).json({ error: 'Unable to register user' });
-//             }
+    User.findOne({ email: user.email })
+    .then(async data => {
+        if (data) {
+            return res.status(400).json({ error: "Email is already registered. Please try again or try to login." });
+        } else {
+            user = await user.save();
+            if (!user) {
+                return res.status(400).json({ error: 'Unable to register user' });
+            }
 
-//             // Generate token and save
-//             let token = new Token({
-//                 token: crypto.randomBytes(16).toString('hex'),
-//                 userId: user._id
-//             });
+            // Generate token and save
+            let token = new Token({
+                token: crypto.randomBytes(16).toString('hex'),
+                userId: user._id
+            });
 
-//             token = await token.save();
-//             if (!token) {
-//                 return res.status(400).json({ error: "Unable to create token" });
-//             }
+            token = await token.save();
+            if (!token) {
+                return res.status(400).json({ error: "Unable to create token" });
+            }
 
-//             const url = process.env.FRONT_END_URL + '/email/confirmation/' + token.token;
+            const url = process.env.FRONT_END_URL + '/login/' + token.token;
 
-//             // Send email with verification link
-//             sendEmail({
-//                 from: 'no-reply@ecommerce.com',
-//                 to: user.email,
-//                 subject: "Email verification link",
-//                 text: Hello,\n\nPlease verify your email by clicking the link below:\n\nhttp://${req.headers.host}/api/confirmation/${token.token},
-//                 html: <h1>Verify your email account</h1><p>Please click the link below to verify your email:</p><a href="${url}">Click to verify</a>
-//             });
+            // Send email with verification link
+            sendEmail({
+                from: 'no-reply@shikshyadwar.com',
+                to: user.email,
+                subject: "Email verification link",
+                text: `Hello,\n\nPlease verify your email by clicking the link below:\n\nhttp://${req.headers.host}/api/confirmation/${token.token}`,
+                html: `<h1>Verify your email account</h1><p>Please click the link below to verify your email:</p><a href="${url}">Click to verify</a>`
+            });
+text:
 
-//             res.send(user);
-//         }
-//     })
-//     .catch(err => {
-//         return res.status(400).json({ error: err.message });
-//     });
+            res.send(user);
+        }
+    })
+    .catch(err => {
+        return res.status(400).json({ error: err.message });
+    });
 
  
+
+}
+
 
 // }
 
@@ -195,10 +194,10 @@ exports.login=async(req,res)=>{
         return res.status(400).json({error:"sorry, the email you have provided is not found in our system,please resgister first"})
     }
     // if email is found then cehck the password for the email
-    if(!user.authenticate(password)){
-        return res.status(400).json({error:"email and password didn't match"})
+    // if(!user.authenticate(password)){
+    //     return res.status(400).json({error:"email and password didn't match"})
 
-    }
+    // }
   
 
     // token generate with user id,role and jwt secret. id ra secret
@@ -276,35 +275,35 @@ exports.postEmailConfirmation=(req,res)=>{
         return res.status(400).json({error:err})
     })
 }
-// // login for web 
-// exports.signin=async(req,res)=>{
-//     const{email,password}=req.body
-//     // email =req.body.email
-//     // at first check if the email is register or not
-//     const user=await User.findOne({email})
-//     if(!user){
-//         return res.status(400).json({error:"sorry, the email you have provided is not found in our system,please resgister first"})
-//     }
-//     // if email is found then cehck the password for the email
-//     if(!user.authenticate(password)){
-//         return res.status(400).json({error:"email and password didn't match"})
+// login for web 
+exports.signin=async(req,res)=>{
+    const{email,password}=req.body
+    // email =req.body.email
+    // at first check if the email is register or not
+    const user=await User.findOne({email})
+    if(!user){
+        return res.status(400).json({error:"sorry, the email you have provided is not found in our system,please resgister first"})
+    }
+    // if email is found then cehck the password for the email
+    if(!user.authenticate(password)){
+        return res.status(400).json({error:"email and password didn't match"})
 
-//     }
-//     if(!user.isverified){
-//         return res.status(400).json({error:"verify email first to continue"})
-//     }
+    }
+    if(!user.isverified){
+        return res.status(400).json({error:"verify email first to continue"})
+    }
 
-//     // token generate with user id,role and jwt secret. id ra secret
-//     const token =jwt.sign({_id:user._id,role:user.role},process.env.JWT_SECRET)
+    // token generate with user id,role and jwt secret. id ra secret
+    const token =jwt.sign({_id:user._id,role:user.role},process.env.JWT_SECRET)
     
-//     // STORE TOKEN INTO COOKIE(STORE GARNA THAU)
-//     res.cookie('mycookie',token,{expire:Date.now()+99999})
+    // STORE TOKEN INTO COOKIE(STORE GARNA THAU)
+    res.cookie('mycookie',token,{expire:Date.now()+99999})
 
-//     // return user information to frontend
-//     const{_id,name,role}=user
-//     return res.json({token,user:{name,role,email,_id}})
+    // return user information to frontend
+    const{_id,name,role}=user
+    return res.json({token,user:{name,role,email,_id}})
 
-// }
+}
 
 
 
@@ -686,6 +685,7 @@ exports.sendotp = async (req, res) => {
 // };
 
 
+
 // forgot password
 exports.forgetPassword=async(req,res)=>{
     const user=await User.findOne({email:req.body.email})
@@ -701,15 +701,16 @@ exports.forgetPassword=async(req,res)=>{
     if(!token){
         return res.status(400).json({erroe:"unable to create token"})
     }
+
+    const url = process.env.FRONT_END_URL + '/resetpassword/' + token.token;
     // send email process yesma rakheko utako option ma jancha 
     sendEmail({
-        from:'no-reply@ecommerce.com',
+        from:'no-reply@shikshyaDwar.com',
         to:user.email,
         subject:"password reset link",
-        text:`Hello,\n\n please verify your password by clicking the link given below \n\n 
-        http:\/\/${req.headers.host}\/api\/resetpassword\/${token.token}
-             `
-            //  http://localhost:800/api/resetpassword/12343566
+    
+        text:`Hello,\n\nPlease verify your email by clicking the link below:\n\nhttp://${req.headers.host}/api/resetpassword/${token.token}`,
+         html: `<h1>Verify your email account</h1><p>Please click the link below to verify your email:</p><a href="${url}">Click to verify</a>`
 
     })
     res.json({message:'password reset link has been sent successfully.'})

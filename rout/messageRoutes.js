@@ -5,7 +5,7 @@ const { requireSignin} = require('../controller/userController');
 const router = express.Router();
 // requireSignin,
 // protectRoute, 
-router.get('/:id',   getMessage);
-router.post('/send/:id', sendMessage);
+router.get('/:id',  requireSignin,getMessage);
+router.post('/send/:id', requireSignin,sendMessage);
 
 module.exports = router;

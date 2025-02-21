@@ -5,12 +5,12 @@ const BookingSchema = new mongoose.Schema({
 
   Address: {
     type: String,
-    required: false,
+    default: false
   },
  
   city: {
     type: String,
-    required: true
+    default: false
   },
  
  
@@ -18,23 +18,23 @@ const BookingSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  // phone: {
-  //   type: String,
-  //   required: true
-  // },
+  phone: {
+    type: String,
+    default: false
+  },
   status: {
     type: String,
     default: 'pending'
   },
-  // totalPrice: {
-  //   type: Number,
-  //   required: true
-  // },
-  // user: {
-  //   type: ObjectId,
-  //   required: true,
-  //   ref: 'User'
-  // },
+  totalPrice: {
+    type: Number,
+    default: false
+  },
+  user: {
+    type: ObjectId,
+    required: true,
+    ref: 'User'
+  },
   // New fields added from frontend form
   shift: {
     type: String, // Store the selected shift like "morning", "day", or "evening"

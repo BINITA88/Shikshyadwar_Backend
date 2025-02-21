@@ -35,7 +35,7 @@ const productSchema=new mongoose.Schema({
     },
     category:{
      type:ObjectId,
-    //  require:true,
+     default: '',
      ref:"Category"
     }
 },{timestamps:true})
