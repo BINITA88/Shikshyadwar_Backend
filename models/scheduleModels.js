@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 // sdsd
 // lets make current user 
 // Define the schedule schema
+// first mke controller 
 const scheduleSchema = new mongoose.Schema({
   day: {
     type: String,
