@@ -16,6 +16,6 @@ const categorySchema=new mongoose.Schema({
 
     }
 },{timestamps:true})
-// create at ra updated at 
+
 // model firstname be captial letter
 module.exports=mongoose.model('Category',categorySchema)
