@@ -1,10 +1,79 @@
-const Schedule =require('../models/scheduleModels')
+// const Schedule =require('../models/scheduleModels')
 
 
 
 
-// GET /api/schedules/getschedule
-exports.getSchedules  = async (req, res) => {
+// // GET /api/schedules/getschedule
+// exports.getSchedules  = async (req, res) => {
+//   try {
+//     const schedules = await Schedule.find({});
+//     if (schedules.length === 0) {
+//       return res.status(404).json({ error: 'No schedules found' });
+//     }
+//     res.json({ schedules });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// };
+
+
+// exports.createSchedule = async (req, res) => {
+//   console.log(req.body);  // Log the incoming request body
+//   const newSchedule = new Schedule(req.body);
+  
+//   newSchedule.save()
+//     .then(schedule => res.status(200).json(schedule))
+//     .catch(err => res.status(400).json({ message: err.message }));
+// };
+
+
+
+// // Update a schedule
+// exports.updateSchedule = async (req, res) => {
+//   const { id } = req.params;
+
+//   try {
+//     // Validate if the schedule exists before updating
+//     const schedule = await Schedule.findById(id);
+//     if (!schedule) {
+//       return res.status(404).json({ message: 'Schedule not found' });
+//     }
+
+//     const updatedSchedule = await Schedule.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+//     res.status(200).json(updatedSchedule);
+//   } catch (error) {
+//     res.status(500).json({ message: 'Failed to update schedule', error: error.message });
+//   }
+// };
+
+// // Delete a schedule
+// exports.deleteSchedule = async (req, res) => {
+//   const { id } = req.params;
+
+//   try {
+//     const schedule = await Schedule.findById(id);
+//     if (!schedule) {
+//       return res.status(404).json({ message: 'Schedule not found' });
+//     }
+
+//     await Schedule.findByIdAndDelete(id);
+//     res.status(200).json({ message: 'Schedule deleted successfully' });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Failed to delete schedule', error: error.message });
+//   }
+// };
+
+
+// const User=require('../models/userModel')
+
+
+
+
+const Schedule = require('../models/scheduleModels');
+
+// ✅ Get all schedules
+exports.getSchedules = async (req, res) => {
   try {
     const schedules = await Schedule.find({});
     if (schedules.length === 0) {
@@ -17,24 +86,24 @@ exports.getSchedules  = async (req, res) => {
   }
 };
 
-
+// ✅ Create a schedule
 exports.createSchedule = async (req, res) => {
-  console.log(req.body);  // Log the incoming request body
+  console.log(req.body);
   const newSchedule = new Schedule(req.body);
-  
-  newSchedule.save()
-    .then(schedule => res.status(200).json(schedule))
-    .catch(err => res.status(400).json({ message: err.message }));
+
+  try {
+    const savedSchedule = await newSchedule.save();
+    res.status(201).json(savedSchedule);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
 };
 
-
-
-// Update a schedule
+// ✅ Update a schedule
 exports.updateSchedule = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Validate if the schedule exists before updating
     const schedule = await Schedule.findById(id);
     if (!schedule) {
       return res.status(404).json({ message: 'Schedule not found' });
@@ -47,7 +116,7 @@ exports.updateSchedule = async (req, res) => {
   }
 };
 
-// Delete a schedule
+// ✅ Delete a schedule
 exports.deleteSchedule = async (req, res) => {
   const { id } = req.params;
 
@@ -64,8 +133,6 @@ exports.deleteSchedule = async (req, res) => {
   }
 };
 
-
-const User=require('../models/userModel')
 // const Token=require('../models/tokenModel')
 // const crypto=require('crypto')
 // const sendEmail=require('../utils/setEmail')

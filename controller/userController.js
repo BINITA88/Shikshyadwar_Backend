@@ -9,6 +9,8 @@ const {expressjwt} =require('express-jwt')
 const OTP = require('../models/OTP')
 const otpGenerator = require('otp-generator');
 const bcrypt = require('bcryptjs');
+const nodemailer = require("nodemailer");
+const twilio = require("twilio");
 exports.postUser=async(req,res)=>{
     let user= new User({
         name:req.body.name,
@@ -37,7 +39,7 @@ exports.postUser=async(req,res)=>{
                 return res.status(400).json({ error: "Unable to create token" });
             }
 
-            const url = process.env.FRONT_END_URL + '/login/' + token.token;
+            const url = process.env.FRONT_END_URL + '/email/confirmation/' + token.token;
 
             // Send email with verification link
             sendEmail({
@@ -838,3 +840,143 @@ exports.deleteUser=(req,res)=>{
 
     })
 }
+
+
+
+
+
+
+
+
+// -------------------- Email & SMS Configuration --------------------
+
+// Configure Nodemailer transporter to use Gmail
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER, // Your Gmail address
+      pass: process.env.EMAIL_PASS, // Your Gmail app password or account password
+    },
+  });
+  
+  // Configure Twilio client (ensure you have TWILIO_* variables in your .env)
+  const twilioClient = twilio(
+    process.env.TWILIO_SID,
+    process.env.TWILIO_AUTH_TOKEN
+  );
+  
+  // Helper to send OTP via Email
+  const sendEmailOTP = async (user, otp) => {
+    const mailOptions = {
+      from: process.env.EMAIL_USER, // using your EMAIL_USER as sender
+      to: user.email,
+      subject: "Your OTP for Password Reset",
+      text: `Your OTP is ${otp}. It is valid for 10 minutes`
+    };
+    await transporter.sendMail(mailOptions);
+  };
+  
+  // Helper to send OTP via SMS
+  const sendSMSOTP = async (user, otp) => {
+    await twilioClient.messages.create({
+      body: `Your OTP is ${otp}. It is valid for 10 minutes`,
+      from: process.env.TWILIO_PHONE_NUMBER, // Your Twilio phone number
+      to: user.phone,
+    });
+  };
+  
+
+
+
+// ✅ Forgot Password - Generate OTP
+exports.forgotPassword1 = async (req, res, next) => {
+    const { email, phone } = req.body;
+  
+    if (!email && !phone) {
+      return res.status(400).json({ message: "Please provide an email or phone number" });
+    }
+  
+    let user;
+    if (email) {
+      user = await User.findOne({ email });
+    }
+    if (!user && phone) {
+      user = await User.findOne({ phone });
+    }
+  
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+  
+    if (email && user.email) {
+      const emailOTP = user.generateEmailOTP();
+      try {
+        await sendEmailOTP(user, emailOTP);
+        console.log("Email OTP sent:", emailOTP);
+      } catch (error) {
+        console.error("Error sending email OTP:", error);
+        return res.status(500).json({ message: "Error sending email OTP" });
+      }
+    }
+    if (phone && user.phone) {
+      const phoneOTP = user.generatePhoneOTP();
+      try {
+        await sendSMSOTP(user, phoneOTP);
+        console.log("SMS OTP sent:", phoneOTP);
+      } catch (error) {
+        console.error("Error sending SMS OTP:", error);
+        return res.status(500).json({ message: "Error sending SMS OTP" });
+      }
+    }
+  
+    await user.save();
+  
+    res.status(200).json({
+      success: true,
+      message: "OTP has been sent to your email/phone.",
+    });
+  };
+  
+  // ✅ Reset Password Using OTP
+  exports.resetPassword1 = async (req, res, next) => {
+    const { email, phone, otp, newPassword } = req.body;
+  
+    if (!otp || !newPassword || (!email && !phone)) {
+      return res.status(400).json({
+        message: "Please provide email/phone, otp, and a new password",
+      });
+    }
+  
+    let user;
+    if (email) {
+      user = await User.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ message: "User not found with that email" });
+      }
+      if (user.emailOTP !== otp || user.emailOTPExpires < Date.now()) {
+        return res.status(400).json({ message: "Invalid or expired OTP for email" });
+      }
+    } else if (phone) {
+      user = await User.findOne({ phone });
+      if (!user) {
+        return res.status(404).json({ message: "User not found with that phone number" });
+      }
+      if (user.phoneOTP !== otp || user.phoneOTPExpires < Date.now()) {
+        return res.status(400).json({ message: "Invalid or expired OTP for phone" });
+      }
+    }
+  
+    user.password = newPassword;
+    user.emailOTP = undefined;
+    user.emailOTPExpires = undefined;
+    user.phoneOTP = undefined;
+    user.phoneOTPExpires = undefined;
+  
+    await user.save();
+  
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  };
+  

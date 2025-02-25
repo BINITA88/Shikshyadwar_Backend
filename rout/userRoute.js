@@ -1,5 +1,5 @@
 const express=require('express')
-const { login, postEmailConfirmation,sendotp, signup, forgetPassword, resetPassword, userList, userDetails, signout, requireSignin, requireAdmin, deleteUser, uploadImage, postUser, signin } = require('../controller/userController')
+const { login, postEmailConfirmation,sendotp, signup, forgetPassword, resetPassword, userList, userDetails, signout, requireSignin, requireAdmin, deleteUser, uploadImage, postUser, signin, forgotPassword, forgotPassword1, resetPassword1 } = require('../controller/userController')
 const { validation, userValidation, passwordValidation } = require('../validation/Validator')
 const router=express.Router()
 const upload = require('../middleware/fileConfig')
@@ -23,6 +23,15 @@ router.get("/userdetails/:id", requireSignin ,userDetails)
 router.post("/signout",signout)
 router.delete('/deleteUser/:id', requireSignin,requireAdmin,deleteUser)
 
+
+
+
+
+
+
+
+router.post("/forgot-password", forgotPassword1);
+router.post("/reset-password",resetPassword1);
 module.exports=router
 
 
@@ -45,6 +54,7 @@ module.exports=router
 // router.post('/uploadImage', upload.single('profilePicture'), uploadImage);
 
 // router.post('/login', login)
+
 // router.post('/signup', signup)
 // // router.post('/sendotp', sendotp)
 
