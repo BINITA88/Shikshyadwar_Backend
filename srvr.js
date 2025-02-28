@@ -70,6 +70,7 @@ const cors = require('cors');
 const connectDB = require('./db/connection');
 
 // Ensure database connection is established
+// Ensure database connection is established
 connectDB();
 
 // Middleware
