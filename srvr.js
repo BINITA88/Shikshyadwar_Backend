@@ -106,7 +106,7 @@ const port = process.env.PORT || 7000;
 
 // Start the server only if not in test mode
 if (process.env.NODE_ENV !== 'test') {
-    app.listen(port, () => {
+    app.listen(port,'0.0.0.0', () => {
         console.log(`Server started at port ${port}`);
     });
 }
