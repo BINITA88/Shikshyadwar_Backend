@@ -6,7 +6,7 @@
 // // Route to get all schedules
 // router.get('/getschedule', getSchedules);
 
-// // Route to create a schedule
+
 // router.post('/addschedule', createSchedule);
 
 // // Route to update a schedule
