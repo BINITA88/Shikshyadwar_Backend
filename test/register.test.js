@@ -83,7 +83,6 @@ describe('User Authentication', function () {
             .post('/api/users/signin')
             .send({ email: "test@example.com", password: "password123" });
 
-        // Assert the status and response
         expect(res).to.have.status(201);
         expect(res.body.success).to.be.true;
         expect(res.body.message).to.equal("Login successful...");
