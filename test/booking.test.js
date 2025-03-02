@@ -143,3 +143,4 @@ describe('📌 Booking API Tests', function () {
         await mongoose.connection.close();
     });
 });
+// booking seat
