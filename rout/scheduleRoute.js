@@ -9,7 +9,7 @@
 
 // router.post('/addschedule', createSchedule);
 
-// // Route to update a schedule
+
 // router.put('/:id', updateSchedule);
 
 // // Route to delete a deleteSchedule);
