@@ -79,7 +79,6 @@ describe('User Authentication', function () {
 
         jwtStub.returns("mocked-jwt-token");
 
-        // Perform the API request to login the user
         const res = await chai.request(server)
             .post('/api/users/signin')
             .send({ email: "test@example.com", password: "password123" });
