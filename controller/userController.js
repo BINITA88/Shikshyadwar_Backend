@@ -11,57 +11,180 @@ const otpGenerator = require('otp-generator');
 const bcrypt = require('bcryptjs');
 const nodemailer = require("nodemailer");
 const twilio = require("twilio");
-exports.postUser=async(req,res)=>{
-    let user= new User({
-        name:req.body.name,
-        email:req.body.email,
-        password:req.body.password
-    })
+
+// exports.postUser=async(req,res)=>{
+//     let user= new User({
+//         name:req.body.name,
+//         email:req.body.email,
+//         password:req.body.password
+//     })
   
-    User.findOne({ email: user.email })
-    .then(async data => {
-        if (data) {
-            return res.status(400).json({ error: "Email is already registered. Please try again or try to login." });
-        } else {
-            user = await user.save();
-            if (!user) {
-                return res.status(400).json({ error: 'Unable to register user' });
-            }
+//     User.findOne({ email: user.email })
+//     .then(async data => {
+//         if (data) {
+//             return res.status(400).json({ error: "Email is already registered. Please try again or try to login." });
+//         } else {
+//             user = await user.save();
+//             if (!user) {
+//                 return res.status(400).json({ error: 'Unable to register user' });
+//             }
 
-            // Generate token and save
-            let token = new Token({
-                token: crypto.randomBytes(16).toString('hex'),
-                userId: user._id
-            });
+//             // Generate token and save
+//             let token = new Token({
+//                 token: crypto.randomBytes(16).toString('hex'),
+//                 userId: user._id
+//             });
 
-            token = await token.save();
-            if (!token) {
-                return res.status(400).json({ error: "Unable to create token" });
-            }
+//             token = await token.save();
+//             if (!token) {
+//                 return res.status(400).json({ error: "Unable to create token" });
+//             }
 
-            const url = process.env.FRONT_END_URL + '/email/confirmation/' + token.token;
+//             const url = process.env.FRONT_END_URL + '/email/confirmation/' + token.token;
 
-            // Send email with verification link
-            sendEmail({
-                from: 'no-reply@shikshyadwar.com',
-                to: user.email,
-                subject: "Email verification link",
-                text: `Hello,\n\nPlease verify your email by clicking the link below:\n\nhttp://${req.headers.host}/api/confirmation/${token.token}`,
-                html: `<h1>Verify your email account</h1><p>Please click the link below to verify your email:</p><a href="${url}">Click to verify</a>`
-            });
-text:
+//             // Send email with verification link
+//             sendEmail({
+//                 from: 'no-reply@shikshyadwar.com',
+//                 to: user.email,
+//                 subject: "Email verification link",
+//                 text: `Hello,\n\nPlease verify your email by clicking the link below:\n\nhttp://${req.headers.host}/api/confirmation/${token.token}`,
+//                 html: `<h1>Verify your email account</h1><p>Please click the link below to verify your email:</p><a href="${url}">Click to verify</a>`
+//             });
+// text:
 
-            res.send(user);
-        }
-    })
-    .catch(err => {
-        return res.status(400).json({ error: err.message });
-    });
+//             res.send(user);
+//         }
+//     })
+//     .catch(err => {
+//         return res.status(400).json({ error: err.message });
+//     });
 
  
 
-}
+// }
 
+
+exports.postUser = async (req, res) => {
+    let user = new User({
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password
+    });
+
+    try {
+        const existingUser = await User.findOne({ email: user.email });
+        if (existingUser) {
+            return res.status(400).json({ error: "Email is already registered. Please try logging in." });
+        }
+
+        user = await user.save();
+        if (!user) {
+            return res.status(400).json({ error: 'Unable to register user' });
+        }
+
+        // Generate a verification token
+        let token = new Token({
+            token: crypto.randomBytes(16).toString('hex'),
+            userId: user._id
+        });
+
+        token = await token.save();
+        if (!token) {
+            return res.status(400).json({ error: "Unable to create token" });
+        }
+
+        // Generate verification URL
+        const verificationUrl = `${process.env.FRONT_END_URL}/email/confirmation/${token.token}`;
+
+        // Email template
+        const emailTemplate = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Email Verification - Shikshyadwar</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    background-color: #f9f9f9;
+                    margin: 0;
+                    padding: 0;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 50px auto;
+                    background-color: #ffffff;
+                    padding: 30px;
+                    border-radius: 10px;
+                    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+                    text-align: center;
+                }
+                h1 {
+                    color: #e60050;
+                    font-size: 24px;
+                }
+                p {
+                    color: #555;
+                    font-size: 16px;
+                    line-height: 1.6;
+                }
+                .verify-button {
+                    display: inline-block;
+                    background-color: #e60050;
+                    color: white;
+                    padding: 12px 25px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    margin-top: 20px;
+                }
+                .verify-button:hover {
+                    background-color: #c40044;
+                }
+                .footer {
+                    margin-top: 30px;
+                    font-size: 14px;
+                    color: #888;
+                }
+                .footer a {
+                    color: #e60050;
+                    text-decoration: none;
+                }
+                .footer a:hover {
+                    text-decoration: underline;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Welcome to Shikshyadwar Consultancy!</h1>
+                <p>Your email has been successfully registered. To start using our platform and access your courses, please verify your email.</p>
+                <a href="${verificationUrl}" class="verify-button">Verify My Email</a>
+                <p>If you didn’t request this, please ignore this email or <a href="mailto:support@shikshyadwar.com">contact support</a>.</p>
+                <div class="footer">
+                    <p>Shikshyadwar Consultancy © 2025. All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>`;
+
+        // Send email with verification link
+        await sendEmail({
+            from: 'no-reply@shikshyadwar.com',
+            to: user.email,
+            subject: "Verify Your Email - Shikshyadwar",
+            html: emailTemplate
+        });
+
+        res.json({ message: "Registration successful! Please check your email to verify your account." });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+};
 
 // }
 
@@ -118,7 +241,7 @@ exports.signup = async (req, res) => {
 
                 // Send email with verification link and styled design
                 sendEmail({
-                    from: 'no-reply@ecommerce.com',
+                    from: 'no-reply@ShikshyaDwar.com',
                     to: user.email,
                     subject: "Email Verification from Shikshyadwar",
                     html: `
@@ -689,34 +812,154 @@ exports.sendotp = async (req, res) => {
 
 
 // forgot password
-exports.forgetPassword=async(req,res)=>{
-    const user=await User.findOne({email:req.body.email})
-    if(!user){
-        return res.status(400).json({error:"sorry the email you have provided is not found in our system."})
-    }
-    // generate token and send 
-    let token=new Token({
-        token:crypto.randomBytes(16).toString('hex'),
-        userId:user._id
-    })
-    token=await token.save()
-    if(!token){
-        return res.status(400).json({erroe:"unable to create token"})
-    }
+// exports.forgetPassword=async(req,res)=>{
+//     const user=await User.findOne({email:req.body.email})
+//     if(!user){
+//         return res.status(400).json({error:"sorry the email you have provided is not found in our system."})
+//     }
+//     // generate token and send 
+//     let token=new Token({
+//         token:crypto.randomBytes(16).toString('hex'),
+//         userId:user._id
+//     })
+//     token=await token.save()
+//     if(!token){
+//         return res.status(400).json({erroe:"unable to create token"})
+//     }
 
-    const url = process.env.FRONT_END_URL + '/resetpassword/' + token.token;
-    // send email process yesma rakheko utako option ma jancha 
-    sendEmail({
-        from:'no-reply@shikshyaDwar.com',
-        to:user.email,
-        subject:"password reset link",
+//     const url = process.env.FRONT_END_URL + '/resetpassword/' + token.token;
+//     // send email process yesma rakheko utako option ma jancha 
+//     sendEmail({
+//         from:'no-reply@shikshyaDwar.com',
+//         to:user.email,
+//         subject:"password reset link",
     
-        text:`Hello,\n\nPlease verify your email by clicking the link below:\n\nhttp://${req.headers.host}/api/resetpassword/${token.token}`,
-         html: `<h1>Verify your email account</h1><p>Please click the link below to verify your email:</p><a href="${url}">Click to verify</a>`
+//         text:`Hello,\n\nPlease verify your email by clicking the link below:\n\nhttp://${req.headers.host}/api/resetpassword/${token.token}`,
+//          html: `<h1>Verify your email account</h1><p>Please click the link below to verify your email:</p><a href="${url}">Click to verify</a>`
 
-    })
-    res.json({message:'password reset link has been sent successfully.'})
-}
+//     })
+//     res.json({message:'password reset link has been sent successfully.'})
+// }
+
+
+
+
+
+
+exports.forgetPassword = async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+
+        if (!user) {
+            return res.status(400).json({
+                error: "Sorry, the email you provided is not found in our system.",
+            });
+        }
+
+        // Generate reset token
+        let token = new Token({
+            token: crypto.randomBytes(16).toString("hex"),
+            userId: user._id,
+        });
+
+        token = await token.save();
+        if (!token) {
+            return res.status(400).json({ error: "Unable to create token" });
+        }
+
+        // Password reset link
+        const resetUrl = `${process.env.FRONT_END_URL}/resetpassword/${token.token}`;
+
+        // HTML email template for password reset
+        const emailTemplate = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Password Reset - Shikshyadwar</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    background-color: #f9f9f9;
+                    margin: 0;
+                    padding: 0;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 50px auto;
+                    background-color: #ffffff;
+                    padding: 30px;
+                    border-radius: 10px;
+                    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+                    text-align: center;
+                }
+                h1 {
+                    color: #e60050;
+                    font-size: 24px;
+                }
+                p {
+                    color: #555;
+                    font-size: 16px;
+                    line-height: 1.6;
+                }
+                .reset-button {
+                    display: inline-block;
+                    background-color: #e60050;
+                    color: white;
+                    padding: 12px 25px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    margin-top: 20px;
+                }
+                .reset-button:hover {
+                    background-color: #c40044;
+                }
+                .footer {
+                    margin-top: 30px;
+                    font-size: 14px;
+                    color: #888;
+                }
+                .footer a {
+                    color: #e60050;
+                    text-decoration: none;
+                }
+                .footer a:hover {
+                    text-decoration: underline;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Reset Your Password</h1>
+                <p>We received a request to reset your password. Click the button below to proceed.</p>
+                <a href="${resetUrl}" class="reset-button">Reset Password</a>
+                <p>If you did not request this, please ignore this email or <a href="mailto:support@shikshyadwar.com">contact support</a>.</p>
+                <div class="footer">
+                    <p>Shikshyadwar Consultancy © 2025. All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>`;
+
+        // Send email with password reset link
+        await sendEmail({
+            from: "no-reply@shikshyadwar.com",
+            to: user.email,
+            subject: "Reset Your Password - Shikshyadwar",
+            html: emailTemplate,
+        });
+
+        res.json({
+            message: "Password reset link has been sent successfully. Please check your email.",
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
 
 // reset password
 exports.resetPassword=async(req,res)=>{

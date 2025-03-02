@@ -12,9 +12,12 @@
 const express = require('express');
 const router = express.Router();
 const { createNotification, getNotifications, updateNotification, deleteNotification } = require('../controller/noticeController');
+const { requireSignin} = require('../controller/userController');
 
 // Route to create a notification
+// router.post('/create',requireSignin, createNotification);
 router.post('/create', createNotification);
+
 
 // Route to get all notifications
 router.get('/', getNotifications);

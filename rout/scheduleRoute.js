@@ -18,6 +18,7 @@
 const express = require('express');
 const router = express.Router();
 const { getSchedules, createSchedule, updateSchedule, deleteSchedule } = require('../controller/scheduleController');
+const { requireSignin} = require('../controller/userController');
 
 // Route to get all schedules
 router.get('/getschedule', getSchedules);
