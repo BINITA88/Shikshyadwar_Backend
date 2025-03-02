@@ -12,7 +12,7 @@
 
 // router.put('/:id', updateSchedule);
 
-// // Route to delete a deleteSchedule);
+
 
 const express = require('express');
 const router = express.Router();
