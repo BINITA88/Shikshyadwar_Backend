@@ -77,7 +77,6 @@ describe('User Authentication', function () {
 
         bcryptStub.resolves(true);
 
-        // Simulate JWT sign to return a mock token
         jwtStub.returns("mocked-jwt-token");
 
         // Perform the API request to login the user
