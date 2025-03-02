@@ -3,7 +3,7 @@
 // const { getSchedules, createSchedule, updateSchedule, deleteSchedule } = require('../controller/scheduleController');
 // // const { requireSignin} = require('../controller/userController');
 // // requireSignin,
-// // Route to get all schedules
+
 // router.get('/getschedule', getSchedules);
 
 
