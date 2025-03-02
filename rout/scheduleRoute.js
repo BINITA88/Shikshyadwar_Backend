@@ -14,7 +14,6 @@
 
 // // Route to delete a deleteSchedule);
 
-// module.exports = router;
 const express = require('express');
 const router = express.Router();
 const { getSchedules, createSchedule, updateSchedule, deleteSchedule } = require('../controller/scheduleController');
