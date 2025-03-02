@@ -74,7 +74,7 @@ describe('User Authentication', function () {
         // Simulate the database returning this user
         userStub.resolves(mockUser);
 
-        // Simulate bcrypt comparison to return true (successful password comparison)
+
         bcryptStub.resolves(true);
 
         // Simulate JWT sign to return a mock token
