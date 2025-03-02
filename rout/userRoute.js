@@ -6,7 +6,7 @@ const upload = require('../middleware/fileConfig')
 router.post('/register',userValidation,passwordValidation,validation,postUser,)
 // router.post('/register1',mobileSignup,)
 
-// Apply the upload middleware to handle file uploads
+
 router.post('/uploadImage', upload.single('profilePicture'), uploadImage);
 
 router.post('/login', login)
